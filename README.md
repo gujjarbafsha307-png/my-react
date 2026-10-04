@@ -18,14 +18,14 @@ The owner demo credentials are intentionally client-side and are **not secure au
 1. Create a Supabase project and open its SQL Editor.
 2. Run [`supabase/schema.sql`](supabase/schema.sql). It creates the requested relational tables, foreign keys, order status enum, indexes, RLS policies, a `user_roles` table, and the public `shop-media` image bucket.
 3. Create the owner account in Supabase Auth. Insert its user UUID into `public.user_roles` with role `owner` using the SQL Editor. Keep the service-role key private; never put it in a `VITE_` variable or browser code.
-4. Configure public project URL and anon key in `.env.local` using [`.env.example`](.env.example) only when adding a Supabase client/auth integration. The current UI does not read these variables yet.
+4. Configure public project URL and anon key in `.env.local` using [`.env.example`](.env.example). When these values are present, product reads, creates, edits, deletes, and image uploads use Supabase.
 5. Create customer Auth accounts and matching `customers` rows only after the app is updated to use Supabase Auth. Configure phone/SMS verification if using phone auth.
-6. Upload product images to the `shop-media` bucket and store object paths after wiring the owner dashboard to Storage.
+6. Product images are uploaded from the owner dashboard to the `shop-media` bucket using Camera Capture or Gallery Upload. The public object URL is stored through `products.image_path`.
 7. Deploy the Vite `dist` directory to a static host and configure SPA fallback to `index.html` after completing and testing the live backend workflows.
 
 ## Current integration boundary
 
-The interface is complete as a local interactive demo, with browser geolocation requested at checkout and local persistence across refreshes. Supabase SQL schema is provided, but the current UI does not connect to Supabase: it does not establish Auth sessions, upload images to Storage, or write customers, products, orders, order items, reviews, offers, search history, settings, or notifications to the cloud. The app must be integrated with Supabase Auth, session refresh, owner-role verification, Storage, and the RLS-protected relational writes before taking real orders.
+The interface remains usable as a local interactive demo when Supabase variables are absent, with browser geolocation requested at checkout and local persistence across refreshes. With Supabase variables present, the customer catalog reads current rows from the database and owner product mutations use the RLS-protected products table and Storage bucket. The existing demo owner login is still client-side; use Supabase Auth and the owner role before taking real orders.
 
 In particular, never ship the requested fixed owner password as an authorization mechanism. Provision the owner in Supabase Auth, assign the owner role in `user_roles`, and verify the role server-side/RLS before enabling dashboard mutations. Customer passwords must only be handled by Supabase Auth, never stored in `customers` or local storage.
 

@@ -1,152 +1,122 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
-const catalogImage = (photo) => `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=900&q=85`
-const productsSeed = [
-  { id: 'p1', name: 'Oreo Biscuits', category: 'Biscuits', price: 110, rating: 4.9, stock: 42, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Chocolate sandwich biscuits with a smooth vanilla crème centre.', tag: 'Bestseller' },
-  { id: 'p2', name: 'Rio Biscuits', category: 'Biscuits', price: 50, rating: 4.7, stock: 38, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Crunchy chocolate and vanilla sandwich biscuits for tea time.', tag: 'Tea time' },
-  { id: 'p3', name: 'Cocomo Biscuits', category: 'Biscuits', price: 20, rating: 4.8, stock: 65, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Bite-size chocolate cookies in a handy snack pack.', tag: 'Snack size' },
-  { id: 'p4', name: 'Gala Biscuits', category: 'Biscuits', price: 40, rating: 4.6, stock: 44, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Light, crisp biscuits, a familiar favourite with chai.', tag: 'Classic' },
-  { id: 'p5', name: 'Jam Heart Biscuits', category: 'Biscuits', price: 50, rating: 4.7, stock: 30, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Buttery heart-shaped biscuits with a sweet jam centre.', tag: 'Tea time' },
-  { id: 'p6', name: 'Lays Chips', category: 'Chips', price: 50, rating: 4.8, stock: 52, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'Crispy salted potato chips in a grab-and-go pack.', tag: 'Popular' },
-  { id: 'p7', name: 'Kurkure', category: 'Snacks', price: 50, rating: 4.8, stock: 46, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'Crunchy masala corn puffs with a bold desi flavour.', tag: 'Masala crunch' },
-  { id: 'p8', name: 'Cheetos', category: 'Snacks', price: 50, rating: 4.7, stock: 35, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'Light, crunchy cheese-flavoured corn puffs.', tag: 'Cheesy' },
-  { id: 'p9', name: 'Slanty', category: 'Snacks', price: 30, rating: 4.6, stock: 48, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'Crispy corn snack with a tangy, spicy seasoning.', tag: 'Crunchy' },
-  { id: 'p10', name: 'Super Crisp', category: 'Chips', price: 30, rating: 4.5, stock: 40, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'Thin, crunchy potato crisps in a convenient mini pack.', tag: 'Mini pack' },
-  { id: 'p11', name: 'Bubble Gum', category: 'Bubble Gum', price: 10, rating: 4.5, stock: 90, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'Sweet, chewy bubble gum in a pocket-size wrapper.', tag: 'Pocket treat' },
-  { id: 'p12', name: 'Chilli Milli', category: 'Candies', price: 10, rating: 4.6, stock: 75, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'Colourful chewy candy with a playful sweet-and-tangy taste.', tag: 'Tangy' },
-  { id: 'p13', name: 'Ding Dong', category: 'Bubble Gum', price: 10, rating: 4.6, stock: 72, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'Soft, fruity bubble gum, individually wrapped for sharing.', tag: 'Fruity' },
-  { id: 'p14', name: 'Mentos', category: 'Candies', price: 30, rating: 4.8, stock: 56, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'A roll of refreshing chewy mint sweets to keep handy.', tag: 'Refreshing' },
-  { id: 'p15', name: 'Eclairs', category: 'Toffees', price: 5, rating: 4.7, stock: 110, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'Rich caramel toffee with a smooth chocolate-filled centre.', tag: 'Classic' },
-  { id: 'p16', name: 'Alpenliebe', category: 'Toffees', price: 10, rating: 4.8, stock: 84, image: catalogImage('photo-1581798459219-318e76aecc7b'), description: 'Creamy, slow-melting caramel candy, individually wrapped.', tag: 'Creamy' },
-  { id: 'p17', name: 'Dairy Milk', category: 'Chocolates', price: 120, rating: 4.9, stock: 34, image: catalogImage('photo-1548907040-4d42faa6d45e'), description: 'Smooth, creamy milk chocolate in a sharing-size bar.', tag: 'Chocolate favourite' },
-  { id: 'p18', name: 'KitKat', category: 'Chocolates', price: 120, rating: 4.8, stock: 32, image: catalogImage('photo-1548907040-4d42faa6d45e'), description: 'Crisp wafer fingers covered in smooth milk chocolate.', tag: 'Have a break' },
-  { id: 'p19', name: 'Mars Chocolate', category: 'Chocolates', price: 250, rating: 4.8, stock: 24, image: catalogImage('photo-1548907040-4d42faa6d45e'), description: 'Chocolate bar layered with soft caramel and nougat.', tag: 'Treat size' },
-  { id: 'p20', name: 'Snickers', category: 'Chocolates', price: 250, rating: 4.9, stock: 25, image: catalogImage('photo-1548907040-4d42faa6d45e'), description: 'Chocolate, caramel and roasted peanuts in a filling bar.', tag: 'Satisfying' },
-  { id: 'p21', name: 'Frooti', category: 'Juices', price: 50, rating: 4.7, stock: 40, image: catalogImage('photo-1600271886742-f049cd451bba'), description: 'A chilled mango drink in a convenient single-serve pack.', tag: 'Mango' },
-  { id: 'p22', name: 'Slice Mango', category: 'Juices', price: 60, rating: 4.8, stock: 36, image: catalogImage('photo-1600271886742-f049cd451bba'), description: 'Rich mango fruit drink, best enjoyed chilled.', tag: 'Best served cold' },
-  { id: 'p23', name: 'Pepsi', category: 'Cold Drinks', price: 90, rating: 4.8, stock: 48, image: catalogImage('photo-1629203851122-3726ecdf080e'), description: 'Classic cola soft drink, chilled and ready to enjoy.', tag: 'Chilled' },
-  { id: 'p24', name: 'Coca Cola', category: 'Cold Drinks', price: 90, rating: 4.9, stock: 45, image: catalogImage('photo-1629203851122-3726ecdf080e'), description: 'The classic refreshing cola in a single-serve bottle.', tag: 'Chilled' },
-  { id: 'p25', name: '7UP', category: 'Cold Drinks', price: 90, rating: 4.7, stock: 42, image: catalogImage('photo-1629203851122-3726ecdf080e'), description: 'Crisp lemon-lime soft drink, served cold.', tag: 'Lemon lime' },
-  { id: 'p26', name: 'Sting Energy Drink', category: 'Cold Drinks', price: 90, rating: 4.7, stock: 30, image: catalogImage('photo-1629203851122-3726ecdf080e'), description: 'Carbonated energy drink served chilled for a quick refresh.', tag: 'Energy drink' },
-  { id: 'p27', name: 'Packed Chocolate Cake', category: 'Cakes (packed cakes)', price: 50, rating: 4.6, stock: 28, image: catalogImage('photo-1578985545062-69928b1d9587'), description: 'Individually wrapped soft chocolate cake for an easy snack.', tag: 'Packed fresh' },
-  { id: 'p28', name: 'Nimco Mix', category: 'Nimco', price: 80, rating: 4.7, stock: 32, image: catalogImage('photo-1566478989037-eec170784d0b'), description: 'A savoury mix of crunchy lentils, noodles and spices.', tag: 'Savoury' },
-  { id: 'p29', name: 'Chocolate Wafers', category: 'Wafers', price: 40, rating: 4.6, stock: 35, image: catalogImage('photo-1558961363-fa8fdf82db35'), description: 'Crisp layered wafers with a smooth chocolate filling.', tag: 'Crispy layers' },
-]
+const OWNER_USERNAME = 'Ayan'
+const OWNER_PASSWORD = '000467'
 
-const catalogProducts = productsSeed.map((product, index) => ({ ...product, id: `shop-${String(index + 1).padStart(2, '0')}` }))
-const legacySeedNames = new Set(['Desi Ghee Pinni', 'Kaju Katli', 'Gulab Jamun', 'Pista Barfi', 'Motichoor Ladoo', 'Badam Halwa'])
-const productCategories = ['Biscuits', 'Candies', 'Bubble Gum', 'Chips', 'Snacks', 'Chocolates', 'Toffees', 'Cold Drinks', 'Juices', 'Cakes (packed cakes)', 'Nimco', 'Wafers']
-const savedProducts = () => {
-  const saved = read('products', null)
-  if (!saved) return catalogProducts
-  return saved.some((product) => legacySeedNames.has(product.name))
-    ? [...catalogProducts, ...saved.filter((product) => !legacySeedNames.has(product.name))]
-    : saved
+function App() {
+	const [showWelcome, setShowWelcome] = useState(true)
+	const [page, setPage] = useState('welcome')
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
+	const [loginError, setLoginError] = useState('')
+	const [customerName, setCustomerName] = useState('')
+	const [customerPhone, setCustomerPhone] = useState('')
+	const [customerMessage, setCustomerMessage] = useState('')
+
+	const handleWelcomeOk = () => {
+		console.log('OK button clicked')
+		setShowWelcome(false)
+		setPage('role-selection')
+	}
+
+	const handleOwnerLogin = (event) => {
+		event.preventDefault()
+		if (username === OWNER_USERNAME && password === OWNER_PASSWORD) {
+			setLoginError('')
+			setPage('owner-dashboard')
+			return
+		}
+		setLoginError('Username or password is incorrect.')
+	}
+
+	const handleCustomerSubmit = (event) => {
+		event.preventDefault()
+		setCustomerMessage(`Welcome, ${customerName}! Your details have been received.`)
+	}
+
+	const goBack = () => {
+		setLoginError('')
+		setCustomerMessage('')
+		setPage('role-selection')
+	}
+
+	return (
+		<main className="flow-shell">
+			{showWelcome && (
+				<div className="flow-backdrop" role="presentation">
+					<section className="flow-panel welcome-panel" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+						<span className="flow-mark" aria-hidden="true">✦</span>
+						<p className="flow-kicker">Malik Adrees Shop &amp; UA Trader</p>
+						<h1 id="welcome-title">Assalamualaikum</h1>
+						<p className="flow-copy">Welcome to Malik Adrees Shop &amp; UA Trader</p>
+						<button className="flow-button flow-button-primary" type="button" onClick={handleWelcomeOk}>
+							OK <span aria-hidden="true">→</span>
+						</button>
+					</section>
+				</div>
+			)}
+
+			{!showWelcome && page === 'role-selection' && (
+				<section className="flow-panel" aria-labelledby="role-title">
+					<p className="flow-kicker">Malik Adrees Shop &amp; UA Trader</p>
+					<h1 id="role-title">Welcome</h1>
+					<p className="flow-copy">Choose how you would like to continue.</p>
+					<div className="flow-actions">
+						<button className="flow-button flow-button-primary" type="button" onClick={() => setPage('owner-login')}>
+							Owner <span aria-hidden="true">→</span>
+						</button>
+						<button className="flow-button flow-button-secondary" type="button" onClick={() => setPage('customer-login')}>
+							Customer <span aria-hidden="true">→</span>
+						</button>
+					</div>
+				</section>
+			)}
+
+			{!showWelcome && page === 'owner-login' && (
+				<section className="flow-panel" aria-labelledby="owner-login-title">
+					<button className="flow-back" type="button" onClick={goBack}>← Back</button>
+					<p className="flow-kicker">Owner access</p>
+					<h1 id="owner-login-title">Owner Login</h1>
+					<p className="flow-copy">Sign in to manage the shop.</p>
+					<form className="flow-form" onSubmit={handleOwnerLogin}>
+						<label htmlFor="owner-username">Username</label>
+						<input id="owner-username" name="username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required />
+						<label htmlFor="owner-password">Password</label>
+						<input id="owner-password" name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
+						{loginError && <p className="flow-error" role="alert">{loginError}</p>}
+						<button className="flow-button flow-button-primary" type="submit">Log in <span aria-hidden="true">→</span></button>
+					</form>
+				</section>
+			)}
+
+			{!showWelcome && page === 'owner-dashboard' && (
+				<section className="flow-panel" aria-labelledby="dashboard-title">
+					<p className="flow-kicker">Owner account</p>
+					<h1 id="dashboard-title">Owner Dashboard</h1>
+					<p className="flow-copy">You are signed in as {OWNER_USERNAME}.</p>
+					<button className="flow-button flow-button-secondary" type="button" onClick={goBack}>Sign out</button>
+				</section>
+			)}
+
+			{!showWelcome && page === 'customer-login' && (
+				<section className="flow-panel" aria-labelledby="customer-title">
+					<button className="flow-back" type="button" onClick={goBack}>← Back</button>
+					<p className="flow-kicker">Customer account</p>
+					<h1 id="customer-title">Register or Sign In</h1>
+					<p className="flow-copy">Enter your details to continue.</p>
+					<form className="flow-form" onSubmit={handleCustomerSubmit}>
+						<label htmlFor="customer-name">Name</label>
+						<input id="customer-name" name="name" autoComplete="name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} required />
+						<label htmlFor="customer-phone">Phone number</label>
+						<input id="customer-phone" name="phone" type="tel" autoComplete="tel" value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} required />
+						{customerMessage && <p className="flow-success" role="status">{customerMessage}</p>}
+						<button className="flow-button flow-button-primary" type="submit">Continue <span aria-hidden="true">→</span></button>
+					</form>
+				</section>
+			)}
+		</main>
+	)
 }
 
-const copy = {
-  en: { home: 'Home', sweets: 'Our sweets', story: 'Our story', contact: 'Contact', signIn: 'Sign in', account: 'My account', search: 'Search sweets...', heroEyebrow: 'SAMUNDRI · EST. WITH LOVE', heroTitle: 'A little sweetness,\na lot of tradition.', heroText: 'Handcrafted mithai and timeless favourites, made fresh in the heart of Samundri.', shopNow: 'Explore the collection', explore: 'Discover our favourites', collection: 'A box full of joy', collectionSub: 'Made fresh, shared with love.', all: 'All sweets', add: 'Add to bag', added: 'Added', delivery: 'Delivery available only in Samundri', visit: 'Find us at Clock Tower, Chakki Bazar', offer: 'A little extra joy', offerText: '10% off your first order over Rs. 2,000', reviews: 'Sweet words from our customers', footer: 'Made fresh in Samundri, shared everywhere.', cart: 'Your bag', checkout: 'Place order', empty: 'Your bag is waiting for something sweet.', total: 'Total', continue: 'Continue shopping', close: 'Close', name: 'Full name', phone: 'Phone number', shop: 'Shop name', address: 'Shop address', password: 'Password', register: 'Create account', login: 'Sign in', customer: 'Customer', owner: 'Owner', welcome: 'Assalamu alaikum', selectType: 'How would you like to continue?', skip: 'Browse as guest', orders: 'Order history', noOrders: 'Your orders will appear here.', location: 'Share current location', placing: 'Placing order…', status: 'Status', pending: 'Pending', thanks: 'Thank you for your order!', thankText: 'Thank you for shopping with Malik Adrees Sweets Shop & U.S Dealer.', done: 'Done', dashboard: 'Owner dashboard', products: 'Products', customers: 'Customers', settings: 'Settings', addProduct: 'Add product', save: 'Save', cancel: 'Cancel', edit: 'Edit', delete: 'Delete', quantity: 'Qty', price: 'Price', stock: 'Stock', category: 'Category', description: 'Description', image: 'Image URL', productName: 'Product name', searchInsights: 'Search insights', noSearches: 'Search activity appears as customers browse.', logout: 'Log out', deliveryNotice: 'Delivery available only within Samundri', ourPromise: 'The good things are worth making slowly.', storyText: 'At Malik Adrees, every recipe carries a little piece of home. We make our sweets by hand, in small fresh batches, with the ingredients and care your family deserves.', fresh: 'Made fresh daily', local: 'Proudly from Samundri', rating: 'Customer favourite', writeReview: 'Write a review', submitReview: 'Share review', orderSuccess: 'Your order is on its way to the kitchen.', ownerError: 'Those details do not match.', emptySearch: 'No sweets found. Try another search.', seeAll: 'See all', hours: 'Open daily · Fresh batches from 9 am', reviewThank: 'Thank you for sharing your review.', language: 'اردو', guest: 'Create an account to check out.', shopPhone: 'Shop phone', whatsapp: 'WhatsApp number', charge: 'Delivery charge (Rs.)', saveSettings: 'Save settings', deal: 'Deals & offers', expiry: 'Expiry date', active: 'Active offer' },
-  ur: { home: 'ہوم', sweets: 'ہماری مٹھائیاں', story: 'ہماری کہانی', contact: 'رابطہ', signIn: 'سائن اِن', account: 'میرا اکاؤنٹ', search: 'مٹھائی تلاش کریں...', heroEyebrow: 'سَمُنڈری · محبت سے تیار', heroTitle: 'ذرا سی مٹھاس،\nروایتوں کا خزانہ۔', heroText: 'سَمُنڈری کے دل میں تازہ تیار کی گئی روایتی مٹھائیاں، ہر خوشی کے لیے۔', shopNow: 'مٹھائی دیکھیں', explore: 'ہماری پسندیدہ مٹھائیاں', collection: 'خوشیوں سے بھرا ڈبہ', collectionSub: 'تازہ تیار، محبت سے پیش۔', all: 'تمام مٹھائیاں', add: 'بیگ میں ڈالیں', added: 'شامل ہوگیا', delivery: 'ڈیلیوری صرف سَمُنڈری میں دستیاب ہے', visit: 'کلاک ٹاور، چکی بازار پر تشریف لائیں', offer: 'خوشی میں تھوڑا اضافہ', offerText: 'دو ہزار روپے سے زیادہ کے پہلے آرڈر پر 10٪ رعایت', reviews: 'ہمارے گاہکوں کی پسند', footer: 'سَمُنڈری میں تازہ تیار، ہر جگہ کے لیے۔', cart: 'آپ کا بیگ', checkout: 'آرڈر بھیجیں', empty: 'آپ کے بیگ کو کسی میٹھی چیز کا انتظار ہے۔', total: 'کل رقم', continue: 'خریداری جاری رکھیں', close: 'بند کریں', name: 'پورا نام', phone: 'فون نمبر', shop: 'دکان کا نام', address: 'دکان کا پتہ', password: 'پاس ورڈ', register: 'اکاؤنٹ بنائیں', login: 'سائن اِن', customer: 'گاہک', owner: 'مالک', welcome: 'السلام علیکم', selectType: 'آپ کیسے آگے بڑھنا چاہیں گے؟', skip: 'بطور مہمان دیکھیں', orders: 'آرڈر کی تفصیل', noOrders: 'آپ کے آرڈرز یہاں دکھائی دیں گے۔', location: 'موجودہ مقام بھیجیں', placing: 'آرڈر بھیجا جا رہا ہے…', status: 'حالت', pending: 'زیرِ التوا', thanks: 'آپ کے آرڈر کا شکریہ!', thankText: 'ملک ادریس سویٹس شاپ اینڈ یو ایس ڈیلر سے خریداری کا شکریہ۔', done: 'مکمل', dashboard: 'مالک کا ڈیش بورڈ', products: 'مصنوعات', customers: 'گاہک', settings: 'ترتیبات', addProduct: 'پروڈکٹ شامل کریں', save: 'محفوظ کریں', cancel: 'منسوخ', edit: 'ترمیم', delete: 'حذف', quantity: 'تعداد', price: 'قیمت', stock: 'اسٹاک', category: 'قسم', description: 'تفصیل', image: 'تصویر کا لنک', productName: 'پروڈکٹ کا نام', searchInsights: 'تلاش کی تفصیل', noSearches: 'گاہکوں کی تلاش یہاں دکھائی دے گی۔', logout: 'لاگ آؤٹ', deliveryNotice: 'ڈیلیوری صرف سَمُنڈری میں دستیاب ہے', ourPromise: 'اچھی چیزیں آہستہ آہستہ بنتی ہیں۔', storyText: 'ملک ادریس کی ہر ترکیب میں گھر کی خوشبو ہے۔ ہم آپ کے خاندان کے لیے بہترین اجزاء کے ساتھ، ہاتھوں سے تازہ مٹھائی تیار کرتے ہیں۔', fresh: 'ہر روز تازہ', local: 'سَمُنڈری کی پہچان', rating: 'گاہکوں کی پسند', writeReview: 'اپنا تبصرہ لکھیں', submitReview: 'تبصرہ بھیجیں', orderSuccess: 'آپ کا آرڈر باورچی خانے میں تیار ہوگا۔', ownerError: 'درج کردہ معلومات درست نہیں۔', emptySearch: 'مٹھائی نہیں ملی۔ کوئی اور لفظ تلاش کریں۔', seeAll: 'سب دیکھیں', hours: 'روزانہ کھلا · تازہ مٹھائی صبح 9 بجے سے', reviewThank: 'تبصرہ دینے کا شکریہ۔', language: 'English', guest: 'آرڈر کے لیے اکاؤنٹ بنائیں۔', shopPhone: 'دکان کا فون', whatsapp: 'واٹس ایپ نمبر', charge: 'ڈیلیوری چارج (روپے)', saveSettings: 'ترتیبات محفوظ کریں', deal: 'خصوصی رعایت', expiry: 'آخری تاریخ', active: 'رعایت فعال' },
-}
-
-const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(`malik-${key}`)) ?? fallback } catch { return fallback } }
-const seedData = () => ({ products: savedProducts(), orders: read('orders', []), customers: read('customers', []), searches: read('searches', []), reviews: read('reviews', []), settings: read('settings', { phone: '0321 0000000', whatsapp: '923210000000', delivery: 100 }), offers: read('offers', [{ title: 'First order treat', discount: 10, expires: '2027-12-31', active: true }]) })
-
-export default function App() {
-  const [data, setData] = useState(seedData)
-  const [lang, setCurrentLang] = useState(localStorage.getItem('malik-language') || 'en')
-  const [user, setUser] = useState(() => read('user', null))
-  const [cart, setCart] = useState(() => read('cart', []))
-  const [intro, setIntro] = useState(() => !localStorage.getItem('malik-visited'))
-  const [modal, setModal] = useState('')
-  const [tab, setTab] = useState('All')
-  const [search, setSearch] = useState('')
-  const [toast, setToast] = useState('')
-  const [position, setPosition] = useState(null)
-  const [path, setPath] = useState(location.pathname)
-  const t = copy[lang]
-  const isUrdu = lang === 'ur'
-  const updateData = (key, value) => setData((current) => ({ ...current, [key]: value }))
-  const routeTo = (next) => { history.pushState({}, '', next); setPath(next); window.scrollTo({ top: 0, behavior: 'smooth' }) }
-  const notify = (text) => { setToast(text); setTimeout(() => setToast(''), 2500) }
-  const login = (value) => { setUser(value); localStorage.setItem('malik-user', JSON.stringify(value)) }
-  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
-
-  useEffect(() => { const pop = () => setPath(location.pathname); window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop) }, [])
-  useEffect(() => { Object.entries(data).forEach(([key, value]) => localStorage.setItem(`malik-${key}`, JSON.stringify(value))) }, [data])
-  useEffect(() => { localStorage.setItem('malik-cart', JSON.stringify(cart)) }, [cart])
-  useEffect(() => { if (intro) { const timer = setTimeout(() => { setIntro(false); localStorage.setItem('malik-visited', 'yes'); setModal('welcome') }, 3000); return () => clearTimeout(timer) } }, [intro])
-  useEffect(() => { if (search.trim().length > 1) { const timer = setTimeout(() => setData((current) => ({ ...current, searches: [...current.searches, { term: search.trim(), date: new Date().toISOString() }] })), 700); return () => clearTimeout(timer) } }, [search])
-
-  const products = useMemo(() => data.products.filter((item) => (tab === 'All' || item.category === tab) && `${item.name} ${item.category} ${item.urdu || ''}`.toLowerCase().includes(search.trim().toLowerCase())), [data.products, tab, search])
-  const addToCart = (product) => { setCart((current) => { const exists = current.find((item) => item.id === product.id); return exists ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item) : [...current, { ...product, quantity: 1 }] }); notify(`${product.name} · ${t.added}`) }
-  const changeQuantity = (id, amount) => setCart((current) => current.map((item) => item.id === id ? { ...item, quantity: item.quantity + amount } : item).filter((item) => item.quantity > 0))
-  const setLang = (next) => { setCurrentLang(next); localStorage.setItem('malik-language', next) }
-
-  const register = (event) => { event.preventDefault(); const form = new FormData(event.currentTarget); const customer = { id: crypto.randomUUID(), name: form.get('name'), phone: form.get('phone'), shop: form.get('shop'), address: form.get('address'), createdAt: new Date().toISOString() }; updateData('customers', [...data.customers, customer]); login({ ...customer, type: 'customer' }); setModal(''); notify(`${t.welcome}, ${customer.name}`) }
-  const ownerLogin = (event) => { event.preventDefault(); const form = new FormData(event.currentTarget); if (form.get('username') === 'Ayan' && form.get('password') === '000467') { login({ name: 'Ayan', type: 'owner' }); setModal(''); routeTo('/owner') } else notify(t.ownerError) }
-  const placeOrder = () => {
-    if (user?.type !== 'customer') { setModal('register'); return }
-    const order = { id: crypto.randomUUID(), customer: { name: user.name, phone: user.phone, shop: user.shop, address: user.address }, items: cart, total: cartTotal, status: 'Pending', location: position, createdAt: new Date().toISOString() }
-    updateData('orders', [order, ...data.orders]); setCart([]); setModal('thanks')
-  }
-  const requestLocation = () => { if (!navigator.geolocation) return notify('Location is not available on this browser.'); navigator.geolocation.getCurrentPosition(({ coords }) => { setPosition({ latitude: coords.latitude, longitude: coords.longitude }); notify(t.location) }, () => notify('Location permission was not granted.'), { enableHighAccuracy: true, timeout: 10000 }) }
-  const addProduct = (event) => { event.preventDefault(); const form = new FormData(event.currentTarget); const product = { id: crypto.randomUUID(), name: form.get('name'), urdu: form.get('name'), category: form.get('category'), price: Number(form.get('price')), rating: 5, stock: Number(form.get('stock')), description: form.get('description'), image: form.get('image') || productsSeed[0].image, tag: 'New' }; updateData('products', [product, ...data.products]); setModal(''); notify(t.added) }
-  const logout = () => { login(null); routeTo('/'); setModal(''); notify(t.logout) }
-
-  if (path === '/owner' && user?.type === 'owner') return <OwnerDashboard data={data} updateData={updateData} onAdd={addProduct} t={t} onLogout={logout} />
-
-  return <div className={`app-shell ${isUrdu ? 'is-urdu' : ''}`} dir={isUrdu ? 'rtl' : 'ltr'}>
-    <div className="topline"><span>{t.visit}</span><span>{t.hours}</span></div>
-    <header className="site-header"><a className="brand" href="#home"><span className="brand-mark">MA<span>✳</span></span><span className="brand-copy"><strong>Malik Adrees</strong><small>SWEETS SHOP & U.S DEALER</small></span></a><nav><a href="#home">{t.home}</a><a href="#collection">{t.sweets}</a><a href="#story">{t.story}</a><a href="#contact">{t.contact}</a></nav><div className="header-actions"><button className="language-button" onClick={() => setLang(lang === 'en' ? 'ur' : 'en')}>{t.language}</button><button className="icon-button" onClick={() => user ? setModal('account') : setModal('welcome')} aria-label={t.signIn}>♙<span>{user ? t.account : t.signIn}</span></button><button className="icon-button bag-button" onClick={() => setModal('cart')} aria-label={t.cart}>♧<span>{t.cart}</span>{cartCount > 0 && <i>{cartCount}</i>}</button></div></header>
-    <main><section className="hero" id="home"><div className="hero-copy"><span className="eyebrow"><i />{t.heroEyebrow}</span><h1>{t.heroTitle.split('\n').map((line) => <span key={line}>{line}</span>)}</h1><p>{t.heroText}</p><a className="button button-dark" href="#collection">{t.shopNow}<span>↗</span></a><div className="hero-proof"><div className="proof-avatars"><span>م</span><span>خ</span><span>ع</span></div><div><strong>4.9 <span>★★★★★</span></strong><small>Beloved in Samundri</small></div></div></div><div className="hero-art"><img src="https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=1500&q=90" alt="A carefully arranged box of traditional mithai" /><div className="hero-image-shade" /><div className="hero-stamp"><span>HANDMADE</span><strong>with<br />love</strong><small>SAMUNDRI, PK</small></div><div className="hero-caption"><span>01 / A LITTLE JOY</span><span>FRESH FROM OUR KITCHEN</span></div></div><div className="hero-side-note">SINCE THE VERY FIRST BATCH · 100% DESI GHEE</div></section>
-      <div className="delivery-ribbon"><span>✳</span><span>{t.delivery}</span><b>✦</b><span>{t.visit}</span><span>✳</span></div>
-      <section className="collection section-wrap" id="collection"><div className="section-heading"><div><span className="eyebrow"><i />{t.explore}</span><h2>{t.collection}</h2><p>{t.collectionSub}</p></div><a className="text-link" href="#products">{t.seeAll} ↗</a></div><div className="shop-controls"><div className="filter-tabs">{['All', ...productCategories].map((category) => <button className={tab === category ? 'active' : ''} key={category} onClick={() => setTab(category)}>{category === 'All' ? t.all : category}</button>)}</div><label className="search-field"><span>⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t.search} /><kbd>⌘ K</kbd></label></div><div className="product-grid" id="products">{products.length ? products.map((product, index) => <ProductCard key={product.id} product={product} index={index} t={t} lang={lang} onAdd={addToCart} onReview={() => setModal(`review:${product.id}`)} reviews={data.reviews.filter((review) => review.productId === product.id)} />) : <div className="empty-state">{t.emptySearch}</div>}</div></section>
-      <section className="offer-band"><div className="offer-art"><img src="https://images.unsplash.com/photo-1590080877777-6c4f41d8d7ea?auto=format&fit=crop&w=1100&q=85" alt="Fresh sweets ready to share" /></div><div className="offer-copy"><span className="eyebrow"><i />A LITTLE SOMETHING EXTRA</span><h2>{t.offer}</h2><p>{t.offerText}</p><a className="button button-dark" href="#collection">{t.shopNow}<span>↗</span></a><small>OUR FIRST TREAT, JUST FOR YOU</small></div><strong className="offer-percent">10<sup>%</sup></strong></section>
-      <section className="story section-wrap" id="story"><div className="story-photo"><img src="https://images.unsplash.com/photo-1606471191009-63994c53433b?auto=format&fit=crop&w=1200&q=85" alt="Traditional sweets prepared by hand" /><span>MADE WITH PATIENCE, EVERY MORNING</span></div><div className="story-copy"><span className="eyebrow"><i />THE HEART OF SAMUNDRI</span><h2>{t.ourPromise}</h2><p>{t.storyText}</p><div className="promise-list"><span><b>01</b>{t.fresh}</span><span><b>02</b>{t.local}</span><span><b>03</b>{t.rating}</span></div><a className="text-link" href="#contact">{t.visit} ↗</a></div></section>
-      <section className="reviews-band"><span className="eyebrow"><i />MADE FOR SHARING</span><h2>{t.reviews}</h2><div className="review-quotes"><blockquote><span>★★★★★</span><p>“The pinni tastes just like home. Fresh, rich, and never too sweet.”</p><cite>— Ayesha K. · Samundri</cite></blockquote><blockquote><span>★★★★★</span><p>“Beautifully packed and right on time for our family gathering.”</p><cite>— Hamza R. · Samundri</cite></blockquote><blockquote><span>★★★★★</span><p>“Our go-to gift for every celebration. The kaju katli is lovely.”</p><cite>— Sana M. · Samundri</cite></blockquote></div></section>
-      <section className="contact section-wrap" id="contact"><div><span className="eyebrow"><i />THE DOOR IS ALWAYS OPEN</span><h2>{t.contact}</h2><p>Clock Tower, Chakki Bazar<br />Samundri, Punjab, Pakistan</p><span className="contact-hours">{t.hours}</span></div><div className="map-panel"><img src="https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=1100&q=85" alt="Clock tower in a Pakistani town" /><div className="map-label"><span>✳</span><div><strong>Clock Tower</strong><small>CHAKKI BAZAR · SAMUNDRI</small></div></div></div></section></main>
-    <footer className="site-footer"><a className="brand" href="#home"><span className="brand-mark">MA<span>✳</span></span><span className="brand-copy"><strong>Malik Adrees</strong><small>SWEETS SHOP & U.S DEALER</small></span></a><p>{t.footer}</p><span>© {new Date().getFullYear()} MALIK ADREES SWEETS</span></footer><a className="whatsapp-float" href={`https://wa.me/${data.settings.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" aria-label="WhatsApp support">◉ <i>WhatsApp us</i></a>
-    {intro && <div className="intro-screen"><div className="intro-mark">MA<span>✳</span></div><span className="intro-urdu">السلام علیکم</span><h2>Welcome to Malik Adrees<br />Sweets Shop & U.S Dealer</h2><span className="intro-loader"><i /></span><button className="intro-skip" onClick={() => { setIntro(false); setModal('welcome'); localStorage.setItem('malik-visited', 'yes') }}>{t.skip} ↗</button></div>}
-    {toast && <div className="toast" role="status">{toast}</div>}
-    {modal && modal !== 'cart' && modal !== 'thanks' && !modal.startsWith('review:') && <Modal onClose={() => setModal('')}><ModalContent modal={modal} t={t} onRegister={register} onLogin={ownerLogin} onChoose={(type) => setModal(type === 'owner' ? 'ownerLogin' : 'register')} user={user} onLogout={logout} orders={data.orders.filter((order) => order.customer.phone === user?.phone)} onOpen={setModal} /></Modal>}
-    {modal === 'cart' && <Modal onClose={() => setModal('')}><CartModal t={t} cart={cart} total={cartTotal} onQuantity={changeQuantity} onClose={() => setModal('')} onCheckout={placeOrder} onLocation={requestLocation} position={position} user={user} /></Modal>}
-    {modal === 'thanks' && <Modal onClose={() => setModal('')}><div className="thank-you"><span className="thanks-emoji">🎉</span><h2>{t.thanks}</h2><p>{t.thankText}</p><p>{t.orderSuccess}</p><button className="button button-dark" onClick={() => setModal('')}>{t.done} ↗</button></div></Modal>}
-    {modal.startsWith('review:') && <Modal onClose={() => setModal('')}><ReviewForm t={t} onSubmit={(rating, text) => { updateData('reviews', [...data.reviews, { id: crypto.randomUUID(), productId: modal.split(':')[1], rating, text, author: user?.name || 'Guest' }]); setModal(''); notify(t.reviewThank) }} /></Modal>}
-    {modal === 'account' && <Modal onClose={() => setModal('')}><AccountPanel t={t} user={user} orders={data.orders.filter((order) => order.customer.phone === user?.phone)} onLogout={logout} /></Modal>}
-  </div>
-}
-
-function ProductCard({ product, index, t, lang, onAdd, onReview, reviews }) {
-  const rating = reviews.length ? reviews.reduce((sum, review) => sum + Number(review.rating), 0) / reviews.length : product.rating
-  return <article className="product-card" style={{ '--card-index': index }}><button className="product-image" onClick={onReview} aria-label={t.writeReview}><img src={product.image} alt={product.name} loading="lazy" /><span className="product-tag">{product.tag}</span><span className="image-arrow">↗</span></button><div className="product-details"><div className="product-meta"><span>{product.category}</span><span>★ {rating.toFixed(1)}</span></div><h3>{lang === 'ur' ? product.urdu || product.name : product.name}</h3><p>{product.description}</p><div className="product-bottom"><strong>Rs. {Number(product.price).toLocaleString()}</strong><button className="add-button" onClick={() => onAdd(product)}><span>+</span>{t.add}</button></div><button className="review-link" onClick={onReview}>{t.writeReview} ↗</button></div></article>
-}
-
-function Modal({ children, onClose }) { useEffect(() => { const key = (event) => { if (event.key === 'Escape') onClose() }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key) }, [onClose]); return <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><section className="modal-panel"><button className="modal-close" onClick={onClose} aria-label="Close">×</button>{children}</section></div> }
-function ModalContent({ modal, t, onRegister, onLogin, onChoose, user, onLogout, orders, onOpen }) {
-  if (modal === 'welcome') return <div className="welcome-panel"><span className="eyebrow">MALIK ADREES SWEETS</span><h2>{t.welcome}</h2><p>{t.selectType}</p><button className="button button-dark full-button" onClick={() => onChoose('customer')}>🛒 {t.customer} ↗</button><button className="button button-outline full-button" onClick={() => onChoose('owner')}>♛ {t.owner} ↗</button><button className="guest-link" onClick={() => onOpen('')}>{t.skip}</button></div>
-  if (modal === 'register') return <form className="form-panel" onSubmit={onRegister}><span className="eyebrow">MALIK ADREES SWEETS</span><h2>{t.register}</h2>{[['name', t.name], ['phone', t.phone], ['shop', t.shop], ['address', t.address], ['password', t.password]].map(([name, label]) => <label key={name}>{label}<input name={name} type={name === 'password' ? 'password' : 'text'} required autoComplete={name === 'password' ? 'new-password' : name} /></label>)}<button className="button button-dark full-button">{t.register} ↗</button><p className="form-note">{t.guest}</p></form>
-  if (modal === 'ownerLogin') return <form className="form-panel" onSubmit={onLogin}><span className="eyebrow">{t.owner} ACCESS</span><h2>{t.welcome}</h2><label>Username<input name="username" required autoComplete="username" /></label><label>{t.password}<input name="password" type="password" required autoComplete="current-password" /></label><p className="form-note">Demo access: Ayan / 000467</p><button className="button button-dark full-button">{t.login} ↗</button></form>
-  return <AccountPanel t={t} user={user} orders={orders} onLogout={onLogout} />
-}
-function CartModal({ t, cart, total, onQuantity, onClose, onCheckout, onLocation, position, user }) { return <div className="cart-panel"><span className="eyebrow">YOUR LITTLE BOX</span><h2>{t.cart}</h2>{cart.length ? <><div className="cart-lines">{cart.map((item) => <div className="cart-line" key={item.id}><img src={item.image} alt="" /><div className="cart-line-copy"><strong>{item.name}</strong><small>Rs. {Number(item.price).toLocaleString()}</small><div className="quantity-control"><button onClick={() => onQuantity(item.id, -1)}>−</button><span>{item.quantity}</span><button onClick={() => onQuantity(item.id, 1)}>+</button></div></div><strong>Rs. {(item.price * item.quantity).toLocaleString()}</strong></div>)}</div><div className="cart-total"><span>{t.total}</span><strong>Rs. {total.toLocaleString()}</strong></div><div className="location-row"><span>{position ? `⌖ ${position.latitude.toFixed(4)}, ${position.longitude.toFixed(4)}` : t.location}</span><button onClick={onLocation}>{position ? '✓' : 'Use my location'}</button></div><button className="button button-dark full-button" onClick={onCheckout}>{t.checkout} ↗</button>{!user && <p className="form-note">{t.guest}</p>}</> : <div className="cart-empty"><span>✳</span><p>{t.empty}</p><button className="text-link" onClick={onClose}>{t.continue} ↗</button></div>}</div> }
-function AccountPanel({ t, user, orders, onLogout }) { return <div className="account-panel"><span className="eyebrow">{t.account}</span><h2>{user?.name}</h2><p>{user?.shop} · {user?.phone}</p><h3>{t.orders}</h3>{orders.length ? orders.map((order) => <div className="account-order" key={order.id}><strong>Order #{order.id.slice(0, 6)}</strong><span>{new Date(order.createdAt).toLocaleString()}</span><span>Rs. {order.total.toLocaleString()} · {order.status}</span></div>) : <p>{t.noOrders}</p>}<button className="button button-outline full-button" onClick={onLogout}>{t.logout}</button></div> }
-function ReviewForm({ t, onSubmit }) { const [rating, setRating] = useState(5); return <form className="form-panel" onSubmit={(event) => { event.preventDefault(); onSubmit(rating, new FormData(event.currentTarget).get('review')) }}><span className="eyebrow">{t.writeReview}</span><h2>{t.writeReview}</h2><div className="rating-select">{[1, 2, 3, 4, 5].map((star) => <button type="button" key={star} className={star <= rating ? 'selected' : ''} onClick={() => setRating(star)}>★</button>)}</div><textarea name="review" required rows="4" placeholder={t.writeReview} /><button className="button button-dark full-button">{t.submitReview} ↗</button></form> }
-
-function OwnerDashboard({ data, updateData, onAdd, t, onLogout }) {
-  const [tab, setTab] = useState('orders'); const [editing, setEditing] = useState(null)
-  const counts = data.searches.reduce((result, item) => ({ ...result, [item.term]: (result[item.term] || 0) + 1 }), {})
-  const status = (orderId, value) => updateData('orders', data.orders.map((order) => order.id === orderId ? { ...order, status: value } : order))
-  const saveEdit = (event) => { event.preventDefault(); const fields = new FormData(event.currentTarget); const item = { ...editing, name: fields.get('name'), description: fields.get('description'), category: fields.get('category'), price: Number(fields.get('price')), stock: Number(fields.get('stock')), image: fields.get('image') || editing.image }; updateData('products', data.products.map((product) => product.id === item.id ? item : product)); setEditing(null) }
-  return <div className="owner-app"><header className="owner-header"><a className="brand" href="/" onClick={(event) => { event.preventDefault(); history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')) }}><span className="brand-mark">MA<span>✳</span></span><span className="brand-copy"><strong>Malik Adrees</strong><small>OWNER WORKSPACE</small></span></a><span>{t.dashboard}</span><button className="button button-outline" onClick={onLogout}>{t.logout} ↗</button></header><div className="owner-layout"><aside className="owner-sidebar"><span className="eyebrow">WORKSPACE</span>{[['orders', t.orders], ['products', t.products], ['customers', t.customers], ['insights', t.searchInsights], ['settings', t.settings]].map(([key, label]) => <button key={key} className={tab === key ? 'active' : ''} onClick={() => setTab(key)}>{key === 'orders' ? '↗' : key === 'products' ? '✳' : key === 'customers' ? '♙' : key === 'insights' ? '⌕' : '⚙'} {label}</button>)}<div className="owner-sidebar-foot">Clock Tower, Chakki Bazar<br />Samundri, Pakistan</div></aside><main className="owner-main"><div className="owner-title-row"><div><span className="eyebrow">{t.welcome}, Ayan</span><h1>{t[tab] || t.orders}</h1></div>{tab === 'products' && <button className="button button-dark" onClick={() => setEditing({ id: 'new', name: '', description: '', category: 'Biscuits', price: '', stock: '', image: '' })}>＋ {t.addProduct}</button>}</div>
-    {tab === 'orders' && <><div className="stats-row"><Stat label="TOTAL ORDERS" value={data.orders.length} /><Stat label="CUSTOMERS" value={data.customers.length} /><Stat label="PRODUCTS" value={data.products.length} /><Stat label="SEARCHES" value={data.searches.length} /></div>{data.orders.length ? <div className="table-wrap"><table><thead><tr><th>ORDER / CUSTOMER</th><th>PRODUCTS</th><th>DATE / LOCATION</th><th>TOTAL</th><th>{t.status}</th></tr></thead><tbody>{data.orders.map((order) => <tr key={order.id}><td><strong>{order.customer.name}</strong><small>{order.customer.phone} · {order.customer.shop}</small><small>{order.customer.address}</small></td><td>{order.items.map((item) => <div className="ordered-item" key={item.id}><img src={item.image} alt="" />{item.name} × {item.quantity}</div>)}</td><td>{new Date(order.createdAt).toLocaleString()}<small>{order.location ? `${order.location.latitude}, ${order.location.longitude}` : 'Location not shared'}</small></td><td>Rs. {order.total.toLocaleString()}</td><td><select value={order.status} onChange={(event) => status(order.id, event.target.value)}><option>Pending</option><option>Confirmed</option><option>Delivered</option><option>Cancelled</option></select></td></tr>)}</tbody></table></div> : <EmptyOwner text="New customer orders will appear here." />}</>}
-    {tab === 'products' && <div className="owner-product-list">{data.products.map((product) => <article key={product.id}><img src={product.image} alt="" /><div><strong>{product.name}</strong><p>{product.category} · Rs. {Number(product.price).toLocaleString()} · {t.stock}: {product.stock}</p></div><button onClick={() => setEditing(product)}>{t.edit}</button><button className="danger" onClick={() => updateData('products', data.products.filter((item) => item.id !== product.id))}>{t.delete}</button></article>)}</div>}
-    {tab === 'customers' && <div className="customer-list">{data.customers.map((customer) => <article key={customer.id}><b>{customer.name.charAt(0)}</b><div><strong>{customer.name}</strong><p>{customer.shop} · {customer.phone}</p><small>{customer.address}</small></div><span>{new Date(customer.createdAt).toLocaleDateString()}</span></article>)}</div>}
-    {tab === 'insights' && <div className="insights-panel"><h2>{t.searchInsights}</h2>{Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([term, count]) => <div className="insight-row" key={term}><span>{term}</span><strong>{count} searches</strong><i style={{ width: `${Math.min(100, count * 12)}%` }} /></div>)}{!Object.keys(counts).length && <EmptyOwner text={t.noSearches} />}</div>}
-    {tab === 'settings' && <Settings data={data} updateData={updateData} t={t} />}</main></div>{editing && <Modal onClose={() => setEditing(null)}><form className="form-panel" onSubmit={editing.id === 'new' ? (event) => { onAdd(event); setEditing(null) } : saveEdit}><span className="eyebrow">PRODUCT MANAGEMENT</span><h2>{editing.id === 'new' ? t.addProduct : t.edit}</h2>{[['name', t.productName], ['description', t.description], ['price', t.price], ['stock', t.stock], ['image', t.image]].map(([name, label]) => <label key={name}>{label}<input name={name} required={name !== 'image'} type={name === 'price' || name === 'stock' ? 'number' : 'text'} defaultValue={editing[name]} /></label>)}<label>{t.category}<select name="category" defaultValue={editing.category}>{productCategories.map((category) => <option key={category}>{category}</option>)}</select></label><button className="button button-dark full-button">{t.save} ↗</button></form></Modal>}</div>
-}
-function Stat({ label, value }) { return <div className="stat-card"><span>{label}</span><strong>{value}</strong></div> }
-function EmptyOwner({ text }) { return <div className="owner-empty"><span>✳</span><p>{text}</p></div> }
-function Settings({ data, updateData, t }) { const [offer, setOffer] = useState(data.offers[0] || { title: '', discount: 10, expires: '', active: true }); return <form className="settings-form" onSubmit={(event) => { event.preventDefault(); const fields = new FormData(event.currentTarget); updateData('settings', { phone: fields.get('phone'), whatsapp: fields.get('whatsapp'), delivery: fields.get('delivery') }); updateData('offers', [offer]) }}><label>{t.shopPhone}<input name="phone" defaultValue={data.settings.phone} /></label><label>{t.whatsapp}<input name="whatsapp" defaultValue={data.settings.whatsapp} /></label><label>{t.charge}<input name="delivery" type="number" defaultValue={data.settings.delivery} /></label><button className="button button-dark">{t.saveSettings} ↗</button><div className="offer-editor"><h3>{t.deal}</h3><label>Offer title<input value={offer.title} onChange={(event) => setOffer({ ...offer, title: event.target.value })} /></label><div className="form-pair"><label>Discount %<input type="number" value={offer.discount} onChange={(event) => setOffer({ ...offer, discount: event.target.value })} /></label><label>{t.expiry}<input type="date" value={offer.expires} onChange={(event) => setOffer({ ...offer, expires: event.target.value })} /></label></div><label className="toggle-label"><input type="checkbox" checked={offer.active} onChange={(event) => setOffer({ ...offer, active: event.target.checked })} /> {t.active}</label></div></form> }
+export default App
